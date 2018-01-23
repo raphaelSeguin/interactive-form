@@ -232,7 +232,6 @@ const validators = {
     message: ''
   }
 }
-
 // Must select at least one checkbox under the "Register for Activities" section of the form.
 const activitiesValidation = () => {
   const el = activitiesFieldSet;
@@ -246,7 +245,9 @@ const activitiesValidation = () => {
   return false;
 }
 
-// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+// Helper functions
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 // notiiy an error message on the origin element's label
 const notifyError = (origin, message) => {
@@ -255,12 +256,9 @@ const notifyError = (origin, message) => {
   if (message) {
     // add class error
     origin.classList.add('error');
-    // message dans legend
-
   } else {
     // remove class error
     origin.classList.remove('error');
-    // remove message
   }
   if(messageTarget) {
     destination.removeChild(messageTarget);
@@ -268,7 +266,7 @@ const notifyError = (origin, message) => {
   insertMessage(destination, message);
   //origin.focus();
 };
-// insert a message after the element (in a span)
+// insert a message (in a span) after the element
 const insertMessage = (element, message) => {
   const errorSpan = document.createElement('span');
   errorSpan.className = 'error-message';
