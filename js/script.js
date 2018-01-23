@@ -137,45 +137,55 @@ const paymentOptionsDisplay = (e) => {
 // formValidation
 const formValidation = (e) => {
 
-  const nameValidity = validators['name'].test(nameInput);
-  const mailValidity = validators['mail'].test(emailInput);
+  //e.preventDefault();
 
-  const basicValidity       = nameValidity
-                              &&
-                              mailValidity;
+  const cvvValidity         = validators['cvv'].test(cvvInput) || !(paymentSelect.value === 'credit card');
+  const zipValidity         = validators['zip'].test(zipInput) || !(paymentSelect.value === 'credit card');
+  const ccnumValidity       = validators['cc-num'].test(ccnumInput) || !(paymentSelect.value === 'credit card');
 
   const activitiesValidity  = activitiesValidation();
+  const mailValidity        = validators['mail'].test(emailInput);
+  const nameValidity        = validators['name'].test(nameInput);
 
-  const paymentValidity     = paymentSelect.value === 'credit card'
-                              ?
-                              validators['cc-num'].test(ccnumInput)
+  const formValidity        = nameValidity
                               &&
-                              validators['zip'].test(zipInput)
-                              &&
-                              validators['cvv'].test(cvvInput)
-                              :
-                              true;
-
-  const formValidity        = basicValidity
+                              mailValidity
                               &&
                               activitiesValidity
                               &&
-                              paymentValidity;
+                              ccnumValidity
+                              &&
+                              zipValidity
+                              &&
+                              cvvValidity
+                              ;
 
+  if (!cvvValidity) {
+    notifyError(cvvInput, ' ');
+    //choices[0].focus();
+  }
+  if (!zipValidity) {
+    notifyError(zipInput, ' ');
+    //choices[0].focus();
+  }
+  if (!ccnumValidity) {
+    notifyError(ccnumInput, ' ');
+    //choices[0].focus();
+  }
+  if (!activitiesValidity) {
+    notifyError(choices[0], 'Please, choose an activity');
+    choices[0].focus();
+  }
+  if (!mailValidity) {
+    notifyError(emailInput, 'Please, fill in your e-mail');
+    emailInput.focus();
+  }
   if (!nameValidity ) {
     notifyError(nameInput, 'Please, fill in your name');
     nameInput.focus();
-  } else if (!mailValidity) {
-    notifyError(nameInput, 'Please, fill in your e-mail');
-    emailInput.focus();
-  } else if (!activitiesValidity) {
-    notifyError(choices[0], 'Please, choose an activity');
-    choices[0].focus();
-  } else if (!paymentValidity) {
-    notifyError(creditCardDiv, 'Please, verify your payment infos');
-    creditCardDiv.focus();
   }
-  // query an error span for aactivities field set
+  /*
+  // query an error span for activities field set
   let activitiesErrorSpan = activitiesFieldSet.getElementsByTagName('span')[0];
   // query the legend element
   const activitiesLegend = activitiesFieldSet.querySelector('legend');
@@ -193,6 +203,7 @@ const formValidation = (e) => {
     // if activities are validated, remove the error span if any
     activitiesLegend.removeChild(activitiesErrorSpan);
   }
+  */
   if ( !formValidity ) {
     e.preventDefault();
   }
@@ -222,15 +233,15 @@ const validators = {
   },
   'cc-num': {
     test: input => /^\d{13,16}$/y.test(input.value),
-    message: "CC number should be between 13 and 16 digits."
+    message: "13 - 16 digits."
   },
   'zip': {
     test: input => /^[0-9]{5}$/.test(input.value),
-    message: "Zipcode must be 5 digits."
+    message: "5 digits"
   },
   'cvv': {
     test: input => /^[0-9]{3}$/.test(input.value),
-    message: "CVV must be 3 digits."
+    message: "3 digits"
   },
   'other-title': {
     test: () => true,
@@ -256,7 +267,8 @@ const activitiesValidation = () => {
 
 // notiiy an error message on the origin element's label
 const notifyError = (origin, message) => {
-  const destination = getParentElementByTagName(origin, 'FIELDSET').getElementsByTagName('legend')[0];
+  //const destination = getParentElementByTagName(origin, 'FIELDSET').getElementsByTagName('legend')[0];
+  const destination = origin.previousElementSibling;
   const messageTarget = destination.getElementsByTagName('span')[0];
   if (message) {
     // add class error
