@@ -162,48 +162,36 @@ const formValidation = (e) => {
 
   if (!cvvValidity) {
     notifyError(cvvInput, ' ');
-    //choices[0].focus();
+    cvvInput.focus();
   }
   if (!zipValidity) {
     notifyError(zipInput, ' ');
-    //choices[0].focus();
+    zipInput.focus();
   }
   if (!ccnumValidity) {
     notifyError(ccnumInput, ' ');
-    //choices[0].focus();
+    ccnumInput.focus();
   }
   if (!activitiesValidity) {
     notifyError(choices[0], 'Please, choose an activity');
-    choices[0].focus();
+    scrollBy(0, choices[0].parentElement.getBoundingClientRect().top);
   }
   if (!mailValidity) {
-    notifyError(emailInput, 'Please, fill in your e-mail');
+    let message = emailInput.value === ''
+                  ?
+                  'Please, fill in your e-mail'
+                  :
+                  'e-mail not formatted properly'
+    notifyError(emailInput, message);
     emailInput.focus();
+    scrollBy(0, emailInput.parentElement.getBoundingClientRect().top);
   }
   if (!nameValidity ) {
     notifyError(nameInput, 'Please, fill in your name');
     nameInput.focus();
+    scrollBy(0, nameInput.parentElement.getBoundingClientRect().top);
   }
-  /*
-  // query an error span for activities field set
-  let activitiesErrorSpan = activitiesFieldSet.getElementsByTagName('span')[0];
-  // query the legend element
-  const activitiesLegend = activitiesFieldSet.querySelector('legend');
-  // if the activities are not validated
-  if ( ! activitiesValidity ) {
-    // and the error span does not exist
-    if ( ! activitiesErrorSpan ) {
-      // create it and insert it
-      activitiesErrorSpan = document.createElement('span');
-      activitiesErrorSpan.innerText = "You must choose at least one activity";
-      activitiesErrorSpan.className = 'error-message';
-      activitiesLegend.appendChild(activitiesErrorSpan);
-    }
-  } else if (activitiesErrorSpan){
-    // if activities are validated, remove the error span if any
-    activitiesLegend.removeChild(activitiesErrorSpan);
-  }
-  */
+  // prevent submitting the form if not all validated
   if ( !formValidity ) {
     e.preventDefault();
   }
@@ -281,7 +269,6 @@ const notifyError = (origin, message) => {
     destination.removeChild(messageTarget);
   }
   insertMessage(destination, message);
-  //origin.focus();
 };
 // insert a message (in a span) after the element
 const insertMessage = (element, message) => {
