@@ -1,26 +1,36 @@
+'use strict';
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Query elements
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-const nameInput = document.getElementById('name');
-const emailInput = document.getElementById('mail');
-const titleSelect = document.getElementById('title');
-const titleTextInput = document.getElementById('other-title');
-const designSelect = document.getElementById('design');
-const colorSelect = document.getElementById('color');
+// form element
+const formElement        = document.getElementsByTagName('form')[0];
+// name and email
+const nameInput          = document.getElementById('name');
+const emailInput         = document.getElementById('mail');
+// Job role
+const titleSelect        = document.getElementById('title');
+const titleTextInput     = document.getElementById('other-title');
+// T-shirt section
+const designSelect       = document.getElementById('design');
+const colorLabel         = document.querySelector('label[for="color"]');
+const colorSelect        = document.getElementById('color');
+// activities section
 const activitiesFieldSet = document.getElementsByClassName('activities')[0];
-const choices = activitiesFieldSet.getElementsByTagName('label');
-const paymentSelect = document.getElementById('payment');
-const creditCardDiv = document.getElementById('credit-card');
-const ccnumInput = document.getElementById('cc-num');
-const zipInput = document.getElementById('zip');
-const cvvInput = document.getElementById('cvv');
-const paypalDiv = document.getElementById('paypal');
-const bitcoinDiv = document.getElementById('bitcoin');
-const submitButton = document.getElementsByTagName('button')[0];
-
-
-const emailRegExp = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ ;
+const choices            = activitiesFieldSet.getElementsByTagName('label');
+// Payment section
+const paymentSelect      = document.getElementById('payment');
+const creditCardDiv      = document.getElementById('credit-card');
+const ccnumInput         = document.getElementById('cc-num');
+const zipInput           = document.getElementById('zip');
+const cvvInput           = document.getElementById('cvv');
+const paypalDiv          = document.getElementById('paypal');
+const bitcoinDiv         = document.getElementById('bitcoin');
+// Submit button
+const submitButton       = document.getElementsByTagName('button')[0];
+// ALl Inputs
+const inputElements      = document.getElementsByTagName('input');
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Handlers
@@ -41,30 +51,22 @@ const designHandler = (e) => {
   const choice = e.target.value;
   // Sets disabled attribute of options according to the design selected
   if (choice === 'js puns') {
-    colorSelect.children[0].disabled = false;
-    colorSelect.children[1].disabled = false;
-    colorSelect.children[2].disabled = false;
-    colorSelect.children[3].disabled = true;
-    colorSelect.children[4].disabled = true;
-    colorSelect.children[5].disabled = true;
-    // select the first color available for this design
+    colorSelect.style.display = '';
+    colorLabel.style.display = '';
+    colorSelect.innerHTML = `<option value="cornflowerblue">Cornflower Blue</option>
+    <option value="darkslategrey">Dark Slate Grey</option>
+    <option value="gold">Gold</option>`;
     colorSelect.children[0].selected = true;
   } else if ( choice === 'heart js') {
-    colorSelect.children[0].disabled = true;
-    colorSelect.children[1].disabled = true;
-    colorSelect.children[2].disabled = true;
-    colorSelect.children[3].disabled = false;
-    colorSelect.children[4].disabled = false;
-    colorSelect.children[5].disabled = false;
-    // select the first color available for this design
-    colorSelect.children[3].selected = true;
+    colorSelect.style.display = '';
+    colorLabel.style.display = '';
+    colorSelect.innerHTML = `<option value="tomato">Tomato</option>
+    <option value="steelblue">Steel Blue</option>
+    <option value="dimgrey">Dim Grey</option>`;
   } else {
-    colorSelect.children[0].disabled = false;
-    colorSelect.children[1].disabled = false;
-    colorSelect.children[2].disabled = false;
-    colorSelect.children[3].disabled = false;
-    colorSelect.children[4].disabled = false;
-    colorSelect.children[5].disabled = false;
+    colorSelect.style.display = 'none';
+    colorLabel.style.display = 'none';
+    colorSelect.innerHTML = `<option value="Select a design">Please select a design</option>`;
   }
 };
 // disable label
@@ -94,7 +96,7 @@ const activitiesHandler = (e) => {
   }
 }
 // compute total price for activities selected
-const activitiesTotal = (e) => {
+const activitiesTotal = () => {
   const prices = [200, 100, 100, 100, 100, 100, 100];
   let total = 0;
   for (let i = 0; i < choices.length; i++) {
@@ -113,7 +115,6 @@ const activitiesTotal = (e) => {
 // payment options hide / show
 const paymentOptionsDisplay = (e) => {
   const choice = e.target.value;
-  console.log(choice);
   if (choice === 'credit card') {
     creditCardDiv.style.display = '';
     paypalDiv.style.display = 'none';
@@ -130,69 +131,159 @@ const paymentOptionsDisplay = (e) => {
 }
 // formValidation
 const formValidation = (e) => {
-  //Name field can't be blank
-  e.preventDefault();
-  console.log('submit form');
-  try {
-    nameValidation(nameInput.value);
-    emailValidation(emailInput.value);
-    activitiesValidation();
-    if (paymentSelect.value === 'credit card') {
-      creditCardNumberValidation(ccnumInput.value);
-      zipcodeValidation(zipInput.value);
-      cvvValidation(cvvInput.value);
-    }
-  } catch(err) {
-    console.log(err);
+
+  const nameValidity = validators['name'].test(nameInput);
+  const mailValidity = validators['mail'].test(emailInput);
+
+  const basicValidity       = nameValidity
+                              &&
+                              mailValidity;
+
+  const activitiesValidity  = activitiesValidation();
+
+  const paymentValidity     = paymentSelect.value === 'credit card'
+                              ?
+                              validators['cc-num'].test(ccnumInput)
+                              &&
+                              validators['zip'].test(zipInput)
+                              &&
+                              validators['cvv'].test(cvvInput)
+                              :
+                              true;
+
+  const formValidity        = basicValidity
+                              &&
+                              activitiesValidity
+                              &&
+                              paymentValidity;
+
+  if (!nameValidity ) {
+    notifyError(nameInput, 'Please, fill in your name');
+    nameInput.focus();
+  } else if (!mailValidity) {
+    notifyError(nameInput, 'Please, fill in your e-mail');
+    emailInput.focus();
+  } else if (!activitiesValidity) {
+    notifyError(choices[0], 'Please, choose an activity');
+    choices[0].focus();
+  } else if (!paymentValidity) {
+    notifyError(creditCardDiv, 'Please, verify your payment infos');
+    creditCardDiv.focus();
   }
-}
-//
-const prevent = (e) => {
-  e.preventDefault();
-}
+  // query an error span for aactivities field set
+  let activitiesErrorSpan = activitiesFieldSet.getElementsByTagName('span')[0];
+  // query the legend element
+  const activitiesLegend = activitiesFieldSet.querySelector('legend');
+  // if the activities are not validated
+  if ( ! activitiesValidity ) {
+    // and the error span does not exist
+    if ( ! activitiesErrorSpan ) {
+      // create it and insert it
+      activitiesErrorSpan = document.createElement('span');
+      activitiesErrorSpan.innerText = "You must choose at least one activity";
+      activitiesErrorSpan.className = 'error-message';
+      activitiesLegend.appendChild(activitiesErrorSpan);
+    }
+  } else if (activitiesErrorSpan){
+    // if activities are validated, remove the error span if any
+    activitiesLegend.removeChild(activitiesErrorSpan);
+  }
+  if ( !formValidity ) {
+    e.preventDefault();
+  }
+};
+// test input as the user is typing
+const realTimeValidation = (e) => {
+  // use event's target id to get the right validator object
+  const validator = validators[e.target.id];
+  // notify error. If no error test returns true and empty string is sent as second argument
+  notifyError(e.target, validator.test(e.target) ? '' : validator.message );
+};
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Validation functions
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-// Name field can't be blank
-const nameValidation = (name) => {
-  if (name === '') {
-    throw new Error("Name field can't be blank");
+// all the validate functions for text inputs, and their error messages
+const validators = {
+  'name': {
+    test: input => /\w/.test(input.value),
+    message: "Name can't be blank."
+  },
+  'mail': {
+    test: input =>
+      /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(input.value),
+    message: "E-mail not valid."
+  },
+  'cc-num': {
+    test: input => /^\d{13,16}$/y.test(input.value),
+    message: "CC number should be between 13 and 16 digits."
+  },
+  'zip': {
+    test: input => /^[0-9]{5}$/.test(input.value),
+    message: "Zipcode must be 5 digits."
+  },
+  'cvv': {
+    test: input => /^[0-9]{3}$/.test(input.value),
+    message: "CVV must be 3 digits."
+  },
+  'other-title': {
+    test: () => true,
+    message: ''
   }
 }
-// Email must test against emailRegExp found here http://emailregex.com/ ...
-const emailValidation = (email) => {
-  if( ! emailRegExp.test(email) ) {
-    throw new Error('email not valid');
-  }
-}
+
 // Must select at least one checkbox under the "Register for Activities" section of the form.
 const activitiesValidation = () => {
+  const el = activitiesFieldSet;
+  //make an iterable array from the HTMLCollection
   const testArray = Array.from(choices);
-  for (el of testArray) {
-    if (el.firstChild.checked) return;
+  // check for all checkboxes
+  for (let el of testArray) {
+    // it's ok if one's checked
+    if (el.firstChild.checked) return true;
   }
-  throw new Error('Must select at least one checkbox under the "Register for Activities" section of the form.');
+  return false;
 }
-// Credit card field should only accept a number between 13 and 16 digits
-const creditCardNumberValidation = (ccn) => {
-  const length = ccn.length;
-  if ( ! /[0-9]{13,16}/.test(ccn) ) {
-    throw new Error('Credit card number should be between 13 and 16 digits')
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
+
+// notiiy an error message on the origin element's label
+const notifyError = (origin, message) => {
+  const destination = getParentElementByTagName(origin, 'FIELDSET').getElementsByTagName('legend')[0];
+  const messageTarget = destination.getElementsByTagName('span')[0];
+  if (message) {
+    // add class error
+    origin.classList.add('error');
+    // message dans legend
+
+  } else {
+    // remove class error
+    origin.classList.remove('error');
+    // remove message
   }
+  if(messageTarget) {
+    destination.removeChild(messageTarget);
+  }
+  insertMessage(destination, message);
+  //origin.focus();
+};
+// insert a message after the element (in a span)
+const insertMessage = (element, message) => {
+  const errorSpan = document.createElement('span');
+  errorSpan.className = 'error-message';
+  errorSpan.innerText = message;
+  element.appendChild(errorSpan);
 }
-// Zip code Validation
-const zipcodeValidation = (zipcode) => {
-  if ( ! /[0-9]{5}/.test(zipcode.toString()) ) {
-    throw new Error('Zip code must be 5 digits')
-  };
-}
-// CVV Validation
-const cvvValidation = (cvv) => {
-  if ( ! /[0-9]{3}/.test(cvv) ) {
-    throw new Error('CVV code must be 3 digits')
-  };
+// find a parent of a certain tag name
+const getParentElementByTagName = (element, tagName) => {
+  while(element.tagName !== tagName) {
+    element = element.parentNode;
+    if (element.tagName === 'BODY') {
+      return null;
+    }
+  }
+  return element;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -204,8 +295,11 @@ designSelect.addEventListener('change', designHandler);
 activitiesFieldSet.addEventListener('change', activitiesHandler);
 activitiesFieldSet.addEventListener('change', activitiesTotal);
 paymentSelect.addEventListener('change', paymentOptionsDisplay);
-submitButton.addEventListener('click', formValidation);
-submitButton.addEventListener('submit', prevent);
+submitButton.addEventListener('click', formValidation, false);
+
+Array.from(inputElements).forEach( (element) => {
+  element.addEventListener('input', realTimeValidation);
+});
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 // Do things
@@ -213,11 +307,15 @@ submitButton.addEventListener('submit', prevent);
 
 // hide the optionnal job role input text
 titleTextInput.style.display = 'none';
+// hide color selection
+colorSelect.style.display = 'none';
+colorLabel.style.display = 'none';
+// calculate the total price (display Total: 0$ for the moment)
+activitiesTotal();
 // hide payment options by default
 paypalDiv.style.display = 'none';
 bitcoinDiv.style.display = 'none';
 // select credit card by default
 paymentSelect.children[1].selected = 'true';
-
 // focus on the name field... it seems not to work if not in last with a little delay !!???
-setTimeout( function() { nameInput.focus() }, 200);
+nameInput.focus();
