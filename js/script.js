@@ -115,6 +115,7 @@ const activitiesTotal = () => {
 // payment options hide / show
 const paymentOptionsDisplay = (e) => {
   const choice = e.target.value;
+  console.log(choice);
   if (choice === 'credit card') {
     creditCardDiv.style.display = '';
     paypalDiv.style.display = 'none';
@@ -127,6 +128,10 @@ const paymentOptionsDisplay = (e) => {
     creditCardDiv.style.display = 'none';
     paypalDiv.style.display = 'none';
     bitcoinDiv.style.display = '';
+  } else if (choice === 'select_method') {
+    creditCardDiv.style.display = 'none';
+    paypalDiv.style.display = 'none';
+    bitcoinDiv.style.display = 'none';
   }
 }
 // formValidation
